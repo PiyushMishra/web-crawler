@@ -21,7 +21,9 @@ class Crawler extends WebCrawler {
 
   override def shouldVisit(page: Page, url: WebURL): Boolean = {
     val href = url.getURL().toLowerCase()
-    !contentTobefilterd.matcher(href).matches() && href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/2014")
+    !contentTobefilterd.matcher(href).matches() &&
+      href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/201401") &&
+      (href.contains("mbox/thread"))
   }
 
   override def visit(page: Page) {
@@ -32,7 +34,6 @@ class Crawler extends WebCrawler {
         val text = htmlParseData.getText
         val html = htmlParseData.getHtml()
         val links = htmlParseData.getOutgoingUrls()
-//        println(links.toSet.filter { url => url.getURL.contains("2014") && url.getURL.contains("mbox/browser") })
         println("Text : " + text)
         println("Number of outgoing links: " + links.size())
 
