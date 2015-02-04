@@ -29,13 +29,11 @@ class Crawler extends WebCrawler {
   override def visit(page: Page) {
     val url = page.getWebURL().getURL()
     println("URL: " + url)
-    page.getParseData match {
+    page.getParseData match {  
       case htmlParseData: HtmlParseData =>
         val text = htmlParseData.getText
         val html = htmlParseData.getHtml()
-        print(html)
         val links = htmlParseData.getOutgoingUrls()
-      //        println("Number of outgoing links: " + links)
 
       case _ => // do nothing
 
