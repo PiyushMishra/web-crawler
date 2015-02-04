@@ -35,7 +35,7 @@ class Crawler extends WebCrawler {
         val html = htmlParseData.getHtml()
         print(html)
         val links = htmlParseData.getOutgoingUrls()
-//        println("Number of outgoing links: " + links)
+      //        println("Number of outgoing links: " + links)
 
       case _ => // do nothing
 
