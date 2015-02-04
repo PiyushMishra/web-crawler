@@ -11,10 +11,11 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer
 import edu.uci.ics.crawler4j.crawler.CrawlController
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig
 import scala.collection.JavaConversions._
+import org.apache.http.HttpEntity
 
 class Crawler extends WebCrawler {
 
-  val contentTobefilterd = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
+  val contentTobefilterd = Pattern.compile(".*(\\.(bmp|gif|jpe?g"
     + "|png|tiff?|mid|mp2|mp3|mp4"
     + "|wav|avi|mov|mpeg|ram|m4v|pdf"
     + "|rm|smil|wmv|swf|wma|zip|rar|gz))$")
@@ -22,8 +23,7 @@ class Crawler extends WebCrawler {
   override def shouldVisit(page: Page, url: WebURL): Boolean = {
     val href = url.getURL().toLowerCase()
     !contentTobefilterd.matcher(href).matches() &&
-      href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/201401") &&
-      (href.contains("mbox/thread"))
+      href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/2014") && href.contains("mbox/thread")
   }
 
   override def visit(page: Page) {
@@ -33,9 +33,9 @@ class Crawler extends WebCrawler {
       case htmlParseData: HtmlParseData =>
         val text = htmlParseData.getText
         val html = htmlParseData.getHtml()
+        print(html)
         val links = htmlParseData.getOutgoingUrls()
-        println("Text : " + text)
-        println("Number of outgoing links: " + links.size())
+//        println("Number of outgoing links: " + links)
 
       case _ => // do nothing
 
@@ -50,7 +50,11 @@ object CrawlerApp extends App {
 
   val config = new CrawlConfig();
   config.setCrawlStorageFolder(crawlStorageFolder)
-
+  config.setMaxDepthOfCrawling(-1)
+  config.setMaxPagesToFetch(-1)
+  config.setMaxPagesToFetch(-1)
+  //  config.setResumableCrawling(true)
+  config.setMaxPagesToFetch(-1)
   val pageFetcher = new PageFetcher(config)
   val robotstxtConfig = new RobotstxtConfig()
   val robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher)
