@@ -12,6 +12,7 @@ import edu.uci.ics.crawler4j.crawler.CrawlController
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig
 import scala.collection.JavaConversions._
 import org.apache.http.HttpEntity
+import java.io.File
 
 /**
  * @author piyushm
@@ -23,7 +24,7 @@ class Crawler extends WebCrawler with Logger {
   /*
    *  content which is not required to visit
    */
-
+  
   val contentNotToVisit = Pattern.compile(".*(\\.(bmp|gif|jpe?g"
     + "|png|tiff?|mid|mp2|mp3|mp4"
     + "|wav|avi|mov|mpeg|ram|m4v|pdf"
@@ -60,6 +61,9 @@ class Crawler extends WebCrawler with Logger {
 object CrawlerApp extends App with Logger {
 
   val crawlStorageFolder = "/opt/data/crawl/root"
+  
+  new File(crawlStorageFolder).mkdirs()
+  
   val numberOfCrawlers = 1
 
   val config = new CrawlConfig();
