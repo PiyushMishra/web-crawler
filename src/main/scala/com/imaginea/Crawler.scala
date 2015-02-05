@@ -13,31 +13,51 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig
 import scala.collection.JavaConversions._
 import org.apache.http.HttpEntity
 
-class Crawler extends WebCrawler {
+/**
+ * @author piyushm
+ *
+ */
 
-  val contentTobefilterd = Pattern.compile(".*(\\.(bmp|gif|jpe?g"
+class Crawler extends WebCrawler with Logger {
+
+  /*
+   *  content which is not required to visit
+   */
+
+  val contentNotToVisit = Pattern.compile(".*(\\.(bmp|gif|jpe?g"
     + "|png|tiff?|mid|mp2|mp3|mp4"
     + "|wav|avi|mov|mpeg|ram|m4v|pdf"
     + "|rm|smil|wmv|swf|wma|zip|rar|gz))$")
 
+  /**
+   *  visit specific url's which start with like "http://mail-archives.apache.org/mod_mbox/maven-users/2014"
+   *  and contains mbox/thread as part of url
+   */
+
   override def shouldVisit(page: Page, url: WebURL): Boolean = {
     val href = url.getURL().toLowerCase()
-    !contentTobefilterd.matcher(href).matches() &&
-      href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/2014") && href.contains("mbox/thread")
+    !contentNotToVisit.matcher(href).matches() &&
+      href.startsWith("http://mail-archives.apache.org/mod_mbox/maven-users/2014") &&
+      href.contains("mbox/thread")
   }
 
+  /**
+   * visit pages and download mails
+   */
+
   override def visit(page: Page) {
-
     val url = page.getWebURL().getURL()
-    
-    println("URL: " + url)
-
+    logger.debug("dolwnloading mails from " + url)
     HtmlParser.downloadMailContent(url)
-
   }
 }
 
-object CrawlerApp extends App {
+/**
+ *  application startup point
+ *  It crawls the web and fetch url's recursively
+ */
+
+object CrawlerApp extends App with Logger {
 
   val crawlStorageFolder = "/opt/data/crawl/root"
   val numberOfCrawlers = 1
@@ -46,9 +66,7 @@ object CrawlerApp extends App {
   config.setCrawlStorageFolder(crawlStorageFolder)
   config.setMaxDepthOfCrawling(-1)
   config.setMaxPagesToFetch(-1)
-  config.setMaxPagesToFetch(-1)
-  //  config.setResumableCrawling(true)
-  config.setMaxPagesToFetch(-1)
+//  config.setResumableCrawling(true)
   val pageFetcher = new PageFetcher(config)
   val robotstxtConfig = new RobotstxtConfig()
   val robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher)
@@ -56,6 +74,8 @@ object CrawlerApp extends App {
 
   controller.addSeed("http://mail-archives.apache.org/mod_mbox/maven-users/")
 
-  controller.start(classOf[Crawler], numberOfCrawlers)
+  controller.startNonBlocking(classOf[Crawler], numberOfCrawlers)
+  
+  logger.info("downloading mails, please check /opt/mails folder ...................")
 
 }
