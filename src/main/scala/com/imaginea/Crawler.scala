@@ -27,17 +27,13 @@ class Crawler extends WebCrawler {
   }
 
   override def visit(page: Page) {
+
     val url = page.getWebURL().getURL()
+    
     println("URL: " + url)
-    page.getParseData match {  
-      case htmlParseData: HtmlParseData =>
-        val text = htmlParseData.getText
-        val html = htmlParseData.getHtml()
-        val links = htmlParseData.getOutgoingUrls()
 
-      case _ => // do nothing
+    HtmlParser.downloadMailContent(url)
 
-    }
   }
 }
 
