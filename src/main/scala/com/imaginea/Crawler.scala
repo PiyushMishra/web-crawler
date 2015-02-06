@@ -47,7 +47,7 @@ class Crawler extends WebCrawler with Logger {
   override def visit(page: Page) {
     val url = page.getWebURL().getURL()
     logger.debug("dolwnloading mails from " + url)
-    HtmlParser.downloadMailContent(url)
+    MailDownloder.downloadMailContent(url)
   }
 }
 
@@ -73,6 +73,6 @@ object CrawlerApp extends App with FolderManager with Logger {
 
   controller.startNonBlocking(classOf[Crawler], numberOfCrawlers)
 
-  logger.info("downloading mails, please check in" + folderWhereEmailsWouldBeDownloaded)
+  logger.info("downloading mails, please check in " + folderWhereEmailsWouldBeDownloaded)
 
 }

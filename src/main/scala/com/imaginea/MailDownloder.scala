@@ -12,8 +12,8 @@ import MailContentCache._
  * parser for html/javascript dynamic pages which uses htmlUnit library
  */
 
-object HtmlParser extends FolderManager with FileContentAppender with Logger {
-  var i = 0
+object MailDownloder extends FolderManager with FileContentAppender with Logger {
+  var mailCount = 0
   createFolder(folderWhereEmailsWouldBeDownloaded)
 
   val webClient = new WebClient
@@ -33,19 +33,19 @@ object HtmlParser extends FolderManager with FileContentAppender with Logger {
     val page: HtmlPage = webClient.getPage(url)
     val month = findMonthFromUrl(url)
     createFolder(folderWhereEmailsWouldBeDownloaded + month)
-    logger.info("downloading mails from url : [" + url + "]")
+    logger.info("downloading mails for : [" + month + "]")
+  
     page.getAnchors.toList.filter(_.getHrefAttribute.startsWith("%")) foreach { anchor =>
-      i = i + 1
+      mailCount = mailCount + 1
       val MailSubject = anchor.getTextContent.replaceAll("/", ",")
-      logger.info("subject [" + MailSubject + "]" + i)
+      logger.debug("Month["+ month + "]subject[" + MailSubject + "]" + mailCount)
       storeInMap(MailSubject, anchor.click.asInstanceOf[HtmlPage].getBody.asText)
     }
-
-    //    store foreach {
-    //      case (subject, content) =>
-    //        appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/subject : " + subject,
-    //          content)
-    //    }
+        store foreach {
+          case (subject, content) =>
+            appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/subject : " + subject,
+              content)
+        }
 
   }
 }
