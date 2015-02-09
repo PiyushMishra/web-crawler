@@ -11,7 +11,6 @@ import akka.actor.Props
 import akka.routing.RoundRobinPool
 
 class Aggregator extends Actor with FolderManager with Logger {
-  var urls = List[String]()
   val webClient = new WebClient
   var monthWiseMails = Map[String, List[HtmlAnchor]]()
   val actors = context.actorOf(RoundRobinPool(4).props(Props[MailDownloder]), "downloder")
