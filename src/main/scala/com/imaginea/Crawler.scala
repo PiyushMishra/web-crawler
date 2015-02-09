@@ -2,6 +2,11 @@ package com.imaginea
 
 import java.util.regex.Pattern
 
+import CrawlerAndParserConfig.crawlStorageFolder
+import CrawlerAndParserConfig.folderWhereEmailsWouldBeDownloaded
+import CrawlerAndParserConfig.numberOfCrawlers
+import CrawlerAndParserConfig.yearForWhichMailNeedToBeDownloaded
+import akka.actor.actorRef2Scala
 import edu.uci.ics.crawler4j.crawler.CrawlConfig
 import edu.uci.ics.crawler4j.crawler.CrawlController
 import edu.uci.ics.crawler4j.crawler.Page
@@ -10,7 +15,7 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer
 import edu.uci.ics.crawler4j.url.WebURL
-import CrawlerAndParserConfig._
+import Aggregator._
 
 /**
  * @author piyushm
@@ -46,8 +51,8 @@ class Crawler extends WebCrawler with Logger {
 
   override def visit(page: Page) {
     val url = page.getWebURL().getURL()
-    logger.debug("dolwnloading mails from " + url)
-    MailDownloder.downloadMailContent(url)
+    logger.debug("visiting url  " + url)
+    actors ! (url)
   }
 }
 

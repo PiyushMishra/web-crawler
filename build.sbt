@@ -13,7 +13,8 @@ libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.2"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
 
-libraryDependencies += "com.typesafe" % "config" % "0.4.0"
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.3.9"
+
 
 
 assemblyExcludedJars in assembly := { 
