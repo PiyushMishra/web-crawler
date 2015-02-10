@@ -11,7 +11,7 @@ import edu.uci.ics.crawler4j.robotstxt.{ RobotstxtConfig, RobotstxtServer }
 import edu.uci.ics.crawler4j.url.WebURL
 
 /**
- * @author piyushm
+ * author piyushm
  *
  */
 

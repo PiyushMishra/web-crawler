@@ -4,7 +4,6 @@ import java.io.PrintWriter
 import java.io.File
 import java.io.FileWriter
 
-
 /**
  * utility for creating folders
  */
@@ -26,11 +25,11 @@ trait FileContentAppender {
    * this method append the data into files
    */
 
-  def appendToFile(fileName: String, textData: String) =
+  def appendToFile(fileName: String, textData: String): PrintWriter =
     using(new FileWriter(fileName, true)) {
       fileWriter =>
         using(new PrintWriter(fileWriter)) {
-          printWriter => printWriter.println(textData)
+          printWriter => printWriter.append(textData)
         }
     }
 

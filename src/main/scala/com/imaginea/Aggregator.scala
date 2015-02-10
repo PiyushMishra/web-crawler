@@ -8,6 +8,7 @@ import Configuration.{ folderWhereEmailsWouldBeDownloaded, yearForWhichMailNeedT
 import akka.actor.{ Actor, ActorSystem, Props, actorRef2Scala }
 import akka.routing.RoundRobinPool
 import scala.util.control.Exception._
+import scala.collection.mutable.Buffer
 
 class Aggregator extends Actor with FolderManager with Logger {
 
@@ -15,7 +16,7 @@ class Aggregator extends Actor with FolderManager with Logger {
   val mailDownloadingActor = context.actorOf(RoundRobinPool(Runtime.getRuntime.availableProcessors() * 2).
     props(Props[MailDownloder]), "downloder")
 
-  def receive = {
+  def receive: PartialFunction[Any, Unit] = {
     case url: String if (url.contains("?")) =>
 
       val month = findMonthFromUrl(url)
@@ -34,7 +35,7 @@ class Aggregator extends Actor with FolderManager with Logger {
   /**
    * find month for which mails are getting downloaded
    */
-  def findMonthFromUrl(url: String) = {
+  def findMonthFromUrl(url: String): String = {
     val index = url.indexOf(yearForWhichMailNeedToBeDownloaded)
     url.substring(index, index + 6)
   }
@@ -42,7 +43,7 @@ class Aggregator extends Actor with FolderManager with Logger {
   /**
    * find anchors in a url
    */
-  def findAnchors(url: String) = {
+  def findAnchors(url: String): Option[Buffer[HtmlAnchor]] = {
     import scala.collection.JavaConversions._
     allCatch.opt {
       val page: HtmlPage = webClient.getPage(url)

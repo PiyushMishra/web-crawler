@@ -9,13 +9,13 @@ import akka.actor.Actor
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor
 
 /**
- * @author piyushm
+ * author piyushm
  * parser for html/javascript dynamic pages which uses htmlUnit library
  */
 
 class MailDownloder extends Actor with FolderManager with FileContentAppender with Logger {
 
-  def receive = {
+  def receive: PartialFunction[Any, Unit] = {
     case DownloadMail(url, month) => downloadMailContent(url, month)
   }
 
@@ -27,7 +27,6 @@ class MailDownloder extends Actor with FolderManager with FileContentAppender wi
     logger.info("[Subject" + mailSubject + "]")
     Option(pageBody) foreach { body => appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/" + mailSubject, body.asText) }
   }
-  
 }
 
 case class DownloadMail(url: HtmlAnchor, month: String)
