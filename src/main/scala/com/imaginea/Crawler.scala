@@ -55,7 +55,7 @@ class Crawler extends WebCrawler with Logger {
  */
 
 object CrawlerApp extends App with FolderManager with Logger {
-  val config = new CrawlConfig();
+  val config = new CrawlConfig()
   config.setCrawlStorageFolder(crawlStorageFolder)
   createFolder(crawlStorageFolder)
   config.setMaxDepthOfCrawling(-1)

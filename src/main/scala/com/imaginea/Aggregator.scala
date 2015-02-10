@@ -36,7 +36,7 @@ class Aggregator extends Actor with FolderManager with Logger {
    * find month for which mails are getting downloaded
    */
   def findMonthFromUrl(url: String): String = {
-    val index = url.indexOf(yearForWhichMailNeedToBeDownloaded)
+    val index = url.indexOf(yearForWhichMailNeedToBeDownloaded.toString)
     url.substring(index, index + 6)
   }
 
