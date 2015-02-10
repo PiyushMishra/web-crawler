@@ -2,20 +2,13 @@ package com.imaginea
 
 import java.util.regex.Pattern
 
-import CrawlerAndParserConfig.crawlStorageFolder
-import CrawlerAndParserConfig.folderWhereEmailsWouldBeDownloaded
-import CrawlerAndParserConfig.numberOfCrawlers
-import CrawlerAndParserConfig.yearForWhichMailNeedToBeDownloaded
+import Aggregator.actors
+import Configuration._
 import akka.actor.actorRef2Scala
-import edu.uci.ics.crawler4j.crawler.CrawlConfig
-import edu.uci.ics.crawler4j.crawler.CrawlController
-import edu.uci.ics.crawler4j.crawler.Page
-import edu.uci.ics.crawler4j.crawler.WebCrawler
+import edu.uci.ics.crawler4j.crawler.{ CrawlConfig, CrawlController, Page, WebCrawler }
 import edu.uci.ics.crawler4j.fetcher.PageFetcher
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer
+import edu.uci.ics.crawler4j.robotstxt.{ RobotstxtConfig, RobotstxtServer }
 import edu.uci.ics.crawler4j.url.WebURL
-import Aggregator._
 
 /**
  * @author piyushm
@@ -62,13 +55,11 @@ class Crawler extends WebCrawler with Logger {
  */
 
 object CrawlerApp extends App with FolderManager with Logger {
-
   val config = new CrawlConfig();
   config.setCrawlStorageFolder(crawlStorageFolder)
   createFolder(crawlStorageFolder)
   config.setMaxDepthOfCrawling(-1)
   config.setMaxPagesToFetch(-1)
-  //  config.setResumableCrawling(true)
   val pageFetcher = new PageFetcher(config)
   val robotstxtConfig = new RobotstxtConfig()
   val robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher)

@@ -27,23 +27,12 @@ class AggregatorSpec(_system: ActorSystem) extends TestKit(_system) with Implici
   "An Aggregator actor" must {
 
     "retrive anchors in a url" in {
-      assert(aggregator.findAnchors(url, "201401").get.size === 267)
+      assert(aggregator.findAnchors(url).get.size === 267)
     }
 
     "extract the month from url" in {
       assert(aggregator.findMonthFromUrl(url) === "201401")
     }
-
-    "download a file corresponding to an anchor in a folder" in {
-      val anchors = aggregator.findAnchors(url, "201401").get
-      assert(anchors.size !== 0)
-      aggregator.receive(url)
-      val monthFolder = CrawlerAndParserConfig.folderWhereEmailsWouldBeDownloaded + "201401"
-      assert(new File(monthFolder).exists)
-      Thread.sleep(10000)
-      assert(new File(monthFolder + "/" + anchors.head.getTextContent).exists())
-    }
-
   }
 
 }

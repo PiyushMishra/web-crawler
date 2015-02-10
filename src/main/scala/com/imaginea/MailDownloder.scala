@@ -4,7 +4,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
 import com.typesafe.config.ConfigFactory
-import CrawlerAndParserConfig._
+import Configuration._
 import akka.actor.Actor
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor
 
@@ -14,34 +14,20 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor
  */
 
 class MailDownloder extends Actor with FolderManager with FileContentAppender with Logger {
-  var mailCount = 0
-  createFolder(folderWhereEmailsWouldBeDownloaded)
 
   def receive = {
-    case DownloadMails(url, month) => downloadMailContent(url, month)
+    case DownloadMail(url, month) => downloadMailContent(url, month)
   }
 
   /**
    * method for downloading mails and then write them into flat file
    */
-  def downloadMailContent(anchor: HtmlAnchor, month: String) {
-    val MailSubject = anchor.getTextContent.replaceAll("/", ",")
-    val page = anchor.click.asInstanceOf[HtmlPage]
-    logger.info("[Subject" + MailSubject + "]")
-    val pageBody = page.getBody
-    if (Option(pageBody) != None)
-      appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/" + MailSubject,
-       pageBody.asText) else  appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/" + MailSubject,
-       "\n")
+  def downloadMailContent(anchor: HtmlAnchor, month: String): Unit = {
+    val (mailSubject, pageBody) = (anchor.getTextContent.replaceAll("/", ","), anchor.click.asInstanceOf[HtmlPage].getBody)
+    logger.info("[Subject" + mailSubject + "]")
+    Option(pageBody) foreach { body => appendToFile(folderWhereEmailsWouldBeDownloaded + month + "/" + mailSubject, body.asText) }
   }
+  
 }
 
-object CrawlerAndParserConfig {
-  val config = ConfigFactory.load
-  val crawlStorageFolder = config.getString("crawlStorageFolder")
-  val numberOfCrawlers = config.getInt("numberOfCrawlers")
-  val yearForWhichMailNeedToBeDownloaded = config.getString("year")
-  val folderWhereEmailsWouldBeDownloaded = config.getString("mailsDownlaodFolder")
-}
-
-case class DownloadMails(url: HtmlAnchor, month: String)
+case class DownloadMail(url: HtmlAnchor, month: String)

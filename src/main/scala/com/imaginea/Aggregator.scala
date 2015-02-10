@@ -1,29 +1,33 @@
 package com.imaginea
 
-import akka.actor.Actor
-import com.gargoylesoftware.htmlunit.html.HtmlPage
-import CrawlerAndParserConfig._
-import com.gargoylesoftware.htmlunit.WebClient
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.Map
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor
-import akka.actor.ActorSystem
-import akka.actor.Props
+import com.gargoylesoftware.htmlunit.WebClient
+import com.gargoylesoftware.htmlunit.html.{ HtmlAnchor, HtmlPage }
+import Configuration.{ folderWhereEmailsWouldBeDownloaded, yearForWhichMailNeedToBeDownloaded }
+import akka.actor.{ Actor, ActorSystem, Props, actorRef2Scala }
 import akka.routing.RoundRobinPool
+import scala.util.control.Exception._
 
 class Aggregator extends Actor with FolderManager with Logger {
+
   val webClient = new WebClient
-  var monthWiseMails = Map[String, List[HtmlAnchor]]()
-  val actors = context.actorOf(RoundRobinPool(4).props(Props[MailDownloder]), "downloder")
+  val mailDownloadingActor = context.actorOf(RoundRobinPool(Runtime.getRuntime.availableProcessors() * 2).
+    props(Props[MailDownloder]), "downloder")
 
   def receive = {
-    case url: String =>
-      if (url.contains("?")) {
-        val month = findMonthFromUrl(url)
+    case url: String if (url.contains("?")) =>
 
-        createFolder(folderWhereEmailsWouldBeDownloaded)
+      val month = findMonthFromUrl(url)
 
-        val anchors = findAnchors(url, month)
-        if(anchors.isDefined) anchors.get foreach { anchor => actors ! DownloadMails(anchor, month) }
+      createFolder(folderWhereEmailsWouldBeDownloaded + month)
+
+      logger.info("downloading mails for : [" + month + "]")
+
+      findAnchors(url).foreach { anchors =>
+        anchors foreach { anchor =>
+          mailDownloadingActor.tell(DownloadMail(anchor, month), sender)
+        }
       }
   }
 
@@ -35,16 +39,14 @@ class Aggregator extends Actor with FolderManager with Logger {
     url.substring(index, index + 6)
   }
 
-  def findAnchors(url: String, month: String) = {
-    try {
-      import scala.collection.JavaConversions._
+  /**
+   * find anchors in a url
+   */
+  def findAnchors(url: String) = {
+    import scala.collection.JavaConversions._
+    allCatch.opt {
       val page: HtmlPage = webClient.getPage(url)
-      createFolder(folderWhereEmailsWouldBeDownloaded + month)
-      logger.info("downloading mails for : [" + month + "]")
-      val anchors = page.getAnchors
-      if (Option(anchors) != None) Some(anchors.toList.filter(_.getHrefAttribute.startsWith("%"))) else None
-    } catch {
-      case ex: Exception => None
+      page.getAnchors.filter(_.getHrefAttribute.startsWith("%"))
     }
   }
 
