@@ -5,6 +5,8 @@ import scala.util.control.Exception._
 import scala.util.Either
 import scala.util.Failure
 import scala.util.Success
+import scala.util.Try
+import scala.util.Failure
 
 /*
  * set to default values in case of exception
@@ -16,33 +18,33 @@ object Configuration extends Logger {
   val defaultNumberOfCrawlers = 1
   val config = ConfigFactory.load
 
-  def handleExceptions[T](either: Either[Throwable, T], successBody: T => T, failedBody: Throwable => T): T = {
+  def handleExceptions[T](either: Try[T], successBody: T => T, failedBody: Throwable => T): T = {
     either match {
-      case Right(value) => successBody(value)
-      case Left(ex)     => failedBody(ex)
+      case Success(value) => successBody(value)
+      case Failure(ex)    => failedBody(ex)
     }
   }
 
-  val crawlStorageFolder = handleExceptions[String](allCatch.either(config.getString("crawlStorageFolder")),
+  val crawlStorageFolder = handleExceptions[String](Try(config.getString("crawlStorageFolder")),
     t => t, ex =>
       {
         logger.info("Logging exception[" + ex.getMessage + "]")
         "/opt/data/crawl/root"
       })
 
-  val numberOfCrawlers = handleExceptions[Int](allCatch.either(config.getString("numberOfCrawlers").toInt), t => t, ex =>
+  val numberOfCrawlers = handleExceptions[Int](Try(config.getString("numberOfCrawlers").toInt), t => t, ex =>
     {
       logger.info("Logging exception[" + ex.getMessage + "]")
       defaultNumberOfCrawlers
     })
 
-  val yearForWhichMailNeedToBeDownloaded = handleExceptions[Int](allCatch.either(config.getString("year").toInt), t => t, ex =>
+  val yearForWhichMailNeedToBeDownloaded = handleExceptions[Int](Try(config.getString("year").toInt), t => t, ex =>
     {
       logger.info("Logging exception[" + ex.getMessage + "]")
       defaultYear
     })
 
-  val folderWhereEmailsWouldBeDownloaded = handleExceptions[String](allCatch.either(config.getString("mailsDownlaodFolder")),
+  val folderWhereEmailsWouldBeDownloaded = handleExceptions[String](Try(config.getString("mailsDownlaodFolder")),
     t => t, ex =>
       {
         logger.info("Logging exception[" + ex.getMessage + "]")
