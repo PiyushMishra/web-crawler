@@ -18,13 +18,13 @@ object Configuration extends Logger {
   val defaultNumberOfCrawlers = 1
   val config = ConfigFactory.load
 
-  def handleExceptions[T](either: Try[T], successBody: T => T, failedBody: Throwable => T): T = {
-    either match {
+  def handleExceptions[T](body: Try[T], successBody:T=> T, failedBody: Throwable => T): T = {
+    body match {
       case Success(value) => successBody(value)
       case Failure(ex)    => failedBody(ex)
     }
   }
-
+  
   val crawlStorageFolder = handleExceptions[String](Try(config.getString("crawlStorageFolder")),
     t => t, ex =>
       {
